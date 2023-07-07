@@ -1,0 +1,30 @@
+server:
+  port: 8082
+  servlet:
+    application-display-name: file-process-service
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/file-process
+    username: postgres
+    password: postgres
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  main:
+    web-application-type: servlet
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+  codec:
+    max-in-memory-size: 1GB
+
+aws:
+  region: eu-west-1
+  s3:
+    mock: true
+    buckets:
+      file-bucket: bucket-1
