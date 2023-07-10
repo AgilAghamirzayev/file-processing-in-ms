@@ -1,71 +1,53 @@
 package com.ingress.fileuploadms.exception.handling;
 
-import com.ingress.fileuploadms.exception.ResourceNotFoundException;
-import com.ingress.fileuploadms.exception.ForbiddenAccessException;
+import com.ingress.fileuploadms.exception.CustomFeignException;
+import com.ingress.fileuploadms.exception.NotFoundException;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
 
-import static com.ingress.fileuploadms.exception.handling.ExceptionsMessages.*;
+import static com.ingress.fileuploadms.exception.handling.ExceptionMessage.*;
 
 @Log4j2
 @RestControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler {
 
-    @Override
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
-                                                             HttpStatusCode statusCode, WebRequest request) {
-        ExceptionMessage errorResponse = getErrorResponse(ex, UNEXPECTED_EXCEPTION);
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handle(Exception ex) {
+        ErrorResponse errorResponse = getErrorResponse(ex, UNEXPECTED_EXCEPTION);
 
         log.error("Exception: ", ex);
 
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-
-    @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  HttpHeaders headers,
-                                                                  HttpStatusCode status, WebRequest request) {
-        ExceptionMessage errorResponse = getErrorResponse(ex, METHOD_ARGUMENT_NOT_VALID_EXCEPTION);
-
-        log.error("MethodArgumentNotValidException: ", ex);
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ExceptionMessage handleException(ResourceNotFoundException ex) {
-        ExceptionMessage errorResponse = getErrorResponse(ex, RESOURCE_NOT_FOUND_EXCEPTION);
-
-        log.error("FileNotFoundException: ", ex);
-
         return errorResponse;
     }
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler(ForbiddenAccessException.class)
-    public ExceptionMessage handleException(ForbiddenAccessException ex) {
-        ExceptionMessage errorResponse = getErrorResponse(ex, FORBIDDEN_ACCESS_EXCEPTION);
+    @ExceptionHandler(NotFoundException.class)
+    public ErrorResponse handle(NotFoundException ex) {
+        ErrorResponse errorResponse = getErrorResponse(ex, NOT_FOUND_EXCEPTION);
 
-        log.error("FileNotFoundException: ", ex);
+        log.error("NotFoundException: ", ex);
 
         return errorResponse;
     }
 
-    private static ExceptionMessage getErrorResponse(Exception ex, ExceptionsMessages message) {
-        return ExceptionMessage.builder()
+    @ExceptionHandler(CustomFeignException.class)
+    public ResponseEntity<ErrorResponse> handle(CustomFeignException ex) {
+        ErrorResponse errorResponse = getErrorResponse(ex, CLIENT_ERROR);
+
+        log.error("CustomFeignException: ", ex);
+
+        return ResponseEntity.status(ex.getStatusCode()).body(errorResponse);
+    }
+
+    private static ErrorResponse getErrorResponse(Exception ex, ExceptionMessage message) {
+        return ErrorResponse.builder()
                 .message(message.getMessage())
                 .timestamp(LocalDateTime.now())
                 .error(ex.getMessage())

@@ -1,13 +1,11 @@
-package com.ingress.fileuploadms.config;
+package com.ingress.fileuploadms.client.encoder;
 
 import org.springframework.cloud.openfeign.support.JsonFormWriter;
 import org.springframework.context.annotation.Bean;
 
-public class FeignEncoderConfig {
-
+public class FeignEncoder {
     @Bean
     JsonFormWriter jsonFormWriter() {
         return new JsonFormWriter();
     }
-
 }

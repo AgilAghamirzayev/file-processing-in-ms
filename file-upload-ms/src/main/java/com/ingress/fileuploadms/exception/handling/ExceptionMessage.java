@@ -1,18 +1,16 @@
 package com.ingress.fileuploadms.exception.handling;
 
-import lombok.*;
-
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
-@Setter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ExceptionMessage {
+public enum ExceptionMessage {
 
-    private String error;
-    private String message;
-    private LocalDateTime timestamp;
+    UNEXPECTED_EXCEPTION("Unexpected exception occurred"),
+    NOT_FOUND_EXCEPTION("Resource not found exception occurred"),
+    FORBIDDEN_ACCESS_EXCEPTION("Access denied exception occurred"),
+    CLIENT_ERROR("Error from client");
 
+    private final String message;
 }

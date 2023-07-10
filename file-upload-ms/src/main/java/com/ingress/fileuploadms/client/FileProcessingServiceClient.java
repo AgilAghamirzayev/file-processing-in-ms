@@ -1,6 +1,7 @@
 package com.ingress.fileuploadms.client;
 
-import com.ingress.fileuploadms.config.FeignEncoderConfig;
+import com.ingress.fileuploadms.client.decoder.FeignErrorDecoder;
+import com.ingress.fileuploadms.client.encoder.FeignEncoder;
 import com.ingress.fileuploadms.model.UserRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -14,7 +15,7 @@ import java.util.List;
 @FeignClient(
         name = "file-process-service",
         url = "http://localhost:8082",
-        configuration = FeignEncoderConfig.class)
+        configuration = {FeignEncoder.class, FeignErrorDecoder.class})
 public interface FileProcessingServiceClient {
 
     @PostMapping(value = "/process-file/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
